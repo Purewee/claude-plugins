@@ -1,0 +1,7 @@
+{
+  "name": "frontend",
+  "description": "Bootstrap a new React + Vite or Next.js project with the team's house setup: pnpm, strict TypeScript, Tailwind v4 + shadcn, Biome + oxlint, TanStack Query, optional i18n, Vitest with an 80% coverage gate",
+  "author": {
+    "name": "Purewee"
+  }
+}

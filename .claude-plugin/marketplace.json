@@ -1,0 +1,14 @@
+{
+  "name": "purewee-plugins",
+  "description": "Claude Code plugins by Purewee",
+  "owner": {
+    "name": "Purewee"
+  },
+  "plugins": [
+    {
+      "name": "frontend",
+      "source": "./plugins/frontend",
+      "description": "Bootstrap a new React + Vite or Next.js project with the team's house setup"
+    }
+  ]
+}
