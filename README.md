@@ -2,6 +2,20 @@
 
 Claude Code plugins by Purewee.
 
+## Quick start
+
+1. Install (once):
+   ```text
+   /plugin marketplace add Purewee/claude-plugins
+   /plugin install frontend@purewee-plugins
+   ```
+2. Run `/reload-plugins` (or start a new Claude Code session).
+3. Open Claude Code in the folder where the new project should go and type:
+   ```text
+   /frontend:new-project
+   ```
+4. Answer the one question form. The project is built in a new folder; then run `pnpm verify` and `pnpm dev` in it.
+
 ## frontend
 
 `/frontend:new-project` bootstraps a new React + Vite or Next.js project with the team's house setup:

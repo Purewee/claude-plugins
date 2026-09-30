@@ -1,6 +1,6 @@
 {
   "name": "frontend",
-  "description": "Bootstrap a new React + Vite or Next.js project with the team's house setup: pnpm, strict TypeScript, Tailwind v4 + shadcn, Biome + oxlint, TanStack Query, optional i18n, Vitest with an 80% coverage gate",
+  "description": "Usage: open Claude Code in the folder where the new project should go and run /frontend:new-project. It asks one question form (framework, name, i18n, extras), then builds a React + Vite or Next.js app with pnpm, strict TypeScript, Tailwind v4 + shadcn, Biome + oxlint, TanStack Query and Vitest (80% coverage gate). Needs Node 24+ and pnpm.",
   "author": {
     "name": "Purewee"
   }

@@ -1,6 +1,6 @@
 ---
 name: new-project
-description: Bootstrap a new frontend project (React + Vite or Next.js) with the team's house setup — pnpm, strict TS, Tailwind v4 + shadcn, Biome + oxlint, zod API client, TanStack Query, optional i18n, light/dark theme, Vitest with an 80% per-file coverage gate — installing latest versions. One question form, submitted once, then a fast build.
+description: Run in the folder where a new project should go. Creates a React + Vite or Next.js app with the team setup (pnpm, strict TS, Tailwind v4 + shadcn, Biome + oxlint, TanStack Query, optional i18n, light/dark theme, Vitest 80% coverage gate) after one question form.
 disable-model-invocation: true
 ---
 
