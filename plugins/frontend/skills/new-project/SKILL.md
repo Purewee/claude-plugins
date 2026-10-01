@@ -37,7 +37,7 @@ Everything you need is in this prompt. The reference repository is not required.
 The whole run, from the last answer to the final report, takes about 5 minutes. To stay inside it:
 
 1. **Ask exactly one form (section 1), submitted once,** then print the coffee message and the decision record and start in the same turn. Never ask anything else; every other value has a default (1.3).
-2. **Write files in bulk.** One Bash call writes a whole group of files (a heredoc or a short Python script with many files), never one tool call per file. Aim for about 10 tool calls for the whole build after scaffolding.
+2. **Write files in bulk.** One Bash call writes a whole group of related files (a heredoc or a short Python script with many files), never one tool call per file.
 3. **Copy, do not redesign.** The code blocks are complete, checked files, and carry only the comments rule 18 (section 8) allows; add none. Write them as given, with only the changes 1.4 lists for the answers. Do not read library docs or `node_modules` unless a command fails.
 4. **Run no checks except `pnpm lint:fix` at the end.** No `pnpm test`, `typecheck`, `build`, `dev`, `start`, `outdated` or reinstall. If `lint:fix` reports an error, fix it and run `lint:fix` once more.
 5. **Keep the final report short** (section 10).
@@ -56,10 +56,6 @@ The whole run, from the last answer to the final report, takes about 5 minutes. 
 10. **If a generator or CLI rejects a flag this prompt gives,** run it without that flag, answer its prompts to the same effect, and record it.
 11. **Edit `package.json` with a Node one-liner, never `pnpm pkg set` for scripts:** `pnpm pkg set` rejects keys with a colon such as `lint:fix`. Use `node -e "const f='package.json',p=require('./'+f);p.scripts={...};p.engines={node:'>={{NODE_LTS}}'};require('fs').writeFileSync(f,JSON.stringify(p,null,2)+'\n')"`.
 12. **No command may wait for input or hang.** Wrap every generator and every `shadcn` call as `perl -e 'alarm 300; exec @ARGV' <command> < /dev/null`: input is closed, and a command that still hangs is killed after 5 minutes instead of stalling the run (normal runs take seconds; the limit only leaves room for a slow first download). Never wrap the `pnpm add` installs: they never prompt, and on a cold cache they can legitimately take several minutes. If one is killed, read its output, fix the cause (usually a leftover `components.json` or an undecided build script), and run it once more.
-
-### 0.2 Where this setup goes beyond the reference
-
-These are deliberate improvements over the reference and must not be "corrected" back: Biome runs in `pnpm lint` (the reference installed it but never ran it); the `typecheck`, `lint:fix`, `format` and `verify` scripts, the `packageManager` and `engines` fields and zero lint warnings; `strict` written out, `noUncheckedSideEffectImports`, `vitest.config.ts` type-checked, Biome's `useExhaustiveDependencies` and `useImportType` as errors, oxlint's `correctness` category, `components/ui` override and ignored build output; the router split into three files with a param matcher, a multi-key `useSearchParams` and a stricter `isNavigableClick`; query keys from a keys factory with the locale in every localized key; locale-parity, route-matcher, document-title and layout tests; tracked `.env.production`; `dark:` classes only when the theme answer needs them; Tailwind as a devDependency.
 
 ## 1. Interview
 
@@ -84,7 +80,7 @@ Open with one sentence on what you are about to build, then ask **one AskUserQue
 
 ### 1.2 After the form is submitted
 
-Before any tool call, print this message, with the time estimate for the chosen framework, so the user knows they can leave:
+Before any tool call, print this message, so the user knows they can leave:
 
 ```markdown
 # ☕ Building {{SITE_NAME}} now — about 6–8 minutes
@@ -140,7 +136,6 @@ Print one short table with every decision, then start building in the same turn.
 
 **The configs follow the current schemas, but are not pins.**
 
-- The reference ran TypeScript 6.0, Vite 8.2, Vitest 5.0, Biome 2.5, oxlint 1.82, Tailwind CSS 4.3 and shadcn 4.21.
 - In September 2026 the latest releases were TypeScript 7.0, Vite 8.3, Vitest 5.0, Biome 2.5, oxlint 1.86, Tailwind 4.3, shadcn 4.21, Next.js 16.3, next-intl 4.14, TanStack Router 1.170 and pnpm 12.6.
 - The config keys used below were checked against those Biome, oxlint, Vitest and shadcn releases.
 
@@ -509,7 +504,7 @@ Set `$schema` to the installed version's URL (`pnpm exec biome --version`); `bio
 }
 ```
 
-- The reference had only `plugins` and the two rules. The `categories`, `ignorePatterns` and `overrides` blocks are house additions. The override exists because `buttonVariants` exported next to `Button` is library code.
+- The override exists because `buttonVariants` exported next to `Button` is library code.
 - `--deny-warnings` in the scripts turns every warning into a failure.
 - If a newer oxlint renames a rule (for example to `react-hooks/rules-of-hooks`), use the new name.
 - `react/only-export-components` is the Vite Fast Refresh rule. A `.tsx` file exports only components, plus constants. Hooks, helpers and contexts go in `.ts` files.
@@ -856,7 +851,7 @@ The router is about 150 lines with no dependency:
 - The layout stays mounted across navigations.
 - Query strings hold shareable view state: filters, tabs and paging.
 
-It is split into three files so its hooks do not break Fast Refresh. Unlike the reference, param routes go through one matcher, so detail pages need no hard-coded prefixes.
+It is split into three files so its hooks do not break Fast Refresh. Param routes go through one matcher, so detail pages need no hard-coded prefixes.
 
 `src/lib/router/match.ts`:
 
@@ -3058,7 +3053,7 @@ describe('main', () => {
 })
 ```
 
-`src/i18n/locales.test.ts`, which keeps every language complete (the reference had no such test):
+`src/i18n/locales.test.ts`, which keeps every language complete:
 
 ```ts
 import { describe, expect, it } from 'vitest'
@@ -3211,7 +3206,7 @@ perl -e 'alarm 300; exec @ARGV' pnpm dlx shadcn@latest init -t next -b radix -p 
   - `--skip-install` lets the build-script decisions in `pnpm-workspace.yaml` exist before the first install. If the generator wrote its own `pnpm-workspace.yaml`, merge it with 3.3; never overwrite it.
   - `--disable-git`: git is out of scope; the user adds it later.
 - **Build scripts.** Write these decisions into `pnpm-workspace.yaml` before the first `pnpm add`, so pnpm never stops with `ERR_PNPM_IGNORED_BUILDS`: `allowBuilds: { "@parcel/watcher": false, "@swc/core": false, sharp: false, unrs-resolver: false }` (the first two come with next-intl; all four ship prebuilt binaries). Keep any other entry the generator wrote.
-- **shadcn never waits for input.** Run every `shadcn` command with `< /dev/null`. If a failed attempt left a `components.json`, delete it before running init again; otherwise init stops at an overwrite prompt and hangs.
+- **shadcn never waits for input.** Run every `shadcn` command wrapped as 0.1 rule 12 says. If a failed attempt left a `components.json`, delete it before running init again; otherwise init stops at an overwrite prompt and hangs.
 - **`AGENTS.md` and `CLAUDE.md`.** create-next-app writes an `AGENTS.md`, Next's pointer to the version-matched docs in `node_modules/next/dist/docs/` (`next dev` re-adds it), and a `CLAUDE.md` that contains only `@AGENTS.md`.
   - Keep both, and put the house `CLAUDE.md` content below that first line.
   - Read the bundled docs before using a Next API you are unsure about.
@@ -4020,7 +4015,7 @@ Create `CLAUDE.md` at the project root. For Next.js, put it below the existing `
 5. **`## Testing`:** the helpers in `src/test/`, the registry test, how to read the coverage table and `coverage/index.html`, and the gate.
 6. **`## Before you call a change done`:** `pnpm lint`, `pnpm typecheck`, `pnpm test` (with the gate) and `pnpm build`, plus README and CLAUDE.md updated if a command or convention changed.
 
-Keep it concrete and readable in one pass, roughly 150 to 250 lines.
+Keep it concrete and readable in one pass.
 
 Write `README.md` for people. It covers:
 
