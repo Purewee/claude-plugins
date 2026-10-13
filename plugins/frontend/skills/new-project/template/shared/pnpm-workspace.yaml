@@ -1,0 +1,9 @@
+packages:
+  - "."
+// #if next
+allowBuilds:
+  "@parcel/watcher": false
+  "@swc/core": false
+  sharp: false
+  unrs-resolver: false
+// #endif

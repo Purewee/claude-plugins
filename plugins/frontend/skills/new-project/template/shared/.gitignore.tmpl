@@ -1,0 +1,48 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Dependencies and build output
+node_modules
+dist
+dist-ssr
+*.local
+*.tsbuildinfo
+// #if next
+.next/
+out/
+/build
+next-env.d.ts
+.vercel
+*.pem
+// #endif
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+// #if next
+# Local env overrides. The tracked .env.<mode> files hold public values only (every
+# NEXT_PUBLIC_ variable ends up in the shipped bundle); .env and .env*.local stay on this machine.
+.env
+.env*.local
+// #else
+# Local env overrides. The tracked .env.<mode> files hold public values only (every VITE_
+# variable ends up in the shipped bundle); .env and *.local stay on this machine.
+.env
+// #endif
+
+# Coverage report written by pnpm test
+coverage

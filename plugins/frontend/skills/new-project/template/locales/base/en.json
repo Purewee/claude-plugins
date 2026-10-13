@@ -1,0 +1,34 @@
+{
+  "common": {
+    "home": "Home"
+  },
+  "language": {
+    "mn": "Монгол",
+    "en": "English"
+  },
+  "home": {
+    "title": "Welcome",
+    "intro": "This is the starting point of the app.",
+    "showDetails": "Show details",
+    "hideDetails": "Hide details",
+    "details": "Real sections replace this one as the app grows."
+  },
+  "footer": {
+    "copyright": "© {{year}} {{site}}"
+  },
+  "errors": {
+    "notFound": {
+      "title": "Page not found",
+      "description": "The page you're looking for doesn't exist, has been removed, or its address has changed."
+    },
+    "server": {
+      "title": "Something went wrong",
+      "description": "A temporary server error kept this page from loading. Refresh the page, or try again in a little while."
+    },
+    "actions": {
+      "back": "Go back",
+      "home": "Home",
+      "refresh": "Refresh"
+    }
+  }
+}

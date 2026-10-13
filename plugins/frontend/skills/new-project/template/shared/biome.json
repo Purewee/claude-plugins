@@ -1,0 +1,141 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.5.15/schema.json",
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "useIgnoreFile": true
+  },
+  "files": {
+    "ignoreUnknown": false,
+// #if next
+    "includes": [
+      "**",
+      "!public",
+      "!dist",
+      "!coverage",
+      "!.next",
+      "!out",
+      "!next-env.d.ts"
+    ]
+// #else
+    "includes": ["**", "!public", "!dist", "!coverage", "!.next", "!out"]
+// #endif
+  },
+  "css": {
+    "parser": {
+      "tailwindDirectives": true
+    }
+  },
+  "formatter": {
+    "enabled": true,
+    "indentStyle": "space",
+    "indentWidth": 2
+  },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "preset": "recommended",
+      "correctness": {
+        "useExhaustiveDependencies": "error"
+      },
+      "style": {
+        "useImportType": "error",
+        "useFilenamingConvention": {
+          "level": "error",
+          "options": {
+            "filenameCases": ["kebab-case", "export"],
+            "requireAscii": true
+          }
+        },
+        "noDefaultExport": "error",
+// #if next
+        "noProcessEnv": "error",
+// #endif
+        "useReactFunctionComponents": "error",
+        "noRestrictedImports": {
+          "level": "error",
+          "options": {
+            "paths": {
+              "zod": {
+                "importNames": ["z"],
+                "message": "Import zod as a namespace: import * as z from 'zod'."
+              }
+            }
+          }
+        }
+      },
+      "suspicious": {
+        "noConsole": { "level": "error", "options": { "allow": ["error"] } },
+        "noLeakedRender": "error",
+        "noReactForwardRef": "error"
+      },
+      "performance": {
+        "noBarrelFile": "error",
+        "noReExportAll": "error"
+      },
+      "nursery": {
+        "noFloatingPromises": "error",
+        "noMisusedPromises": "error"
+      }
+    }
+  },
+  "javascript": {
+    "formatter": {
+      "quoteStyle": "single",
+      "semicolons": "asNeeded"
+    }
+  },
+  "overrides": [
+// #if next
+    {
+      "includes": ["src/lib/api.ts"],
+      "linter": { "rules": { "style": { "noProcessEnv": "off" } } }
+    },
+    {
+      "includes": [
+        "next.config.ts",
+        "vitest.config.mts",
+        "src/app/**",
+        "src/proxy.ts",
+        "src/i18n/request.ts"
+      ],
+      "linter": { "rules": { "style": { "noDefaultExport": "off" } } }
+    },
+// #else
+    {
+      "includes": ["src/App.test.tsx"],
+      "linter": { "rules": { "style": { "useFilenamingConvention": "off" } } }
+    },
+    {
+      "includes": [
+        "vite.config.ts",
+        "vitest.config.ts",
+        "src/App.tsx",
+        "src/i18n/config.ts"
+      ],
+      "linter": { "rules": { "style": { "noDefaultExport": "off" } } }
+    },
+// #endif
+    {
+      "includes": ["src/components/ui/**"],
+      "linter": {
+        "rules": {
+          "a11y": { "useSemanticElements": "off" },
+          "suspicious": {
+            "noDoubleEquals": "off",
+            "noArrayIndexKey": "off",
+            "noLeakedRender": "off"
+          }
+        }
+      }
+    }
+  ],
+  "assist": {
+    "enabled": true,
+    "actions": {
+      "source": {
+        "organizeImports": "on"
+      }
+    }
+  }
+}

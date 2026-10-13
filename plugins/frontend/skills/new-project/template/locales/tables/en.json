@@ -1,0 +1,9 @@
+{
+  "table": {
+    "columns": "Visible columns",
+    "empty": "No results.",
+    "pagination": "Pagination",
+    "previous": "Previous",
+    "next": "Next"
+  }
+}

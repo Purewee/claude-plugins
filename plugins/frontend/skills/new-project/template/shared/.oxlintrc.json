@@ -1,0 +1,67 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+// #if next
+  "plugins": ["react", "typescript", "oxc", "nextjs"],
+// #else
+  "plugins": ["react", "typescript", "oxc"],
+// #endif
+  "categories": {
+    "correctness": "error"
+  },
+// #if next
+  "ignorePatterns": ["dist", "coverage", ".next", "out", "next-env.d.ts"],
+// #else
+  "ignorePatterns": ["dist", "coverage", ".next", "out"],
+// #endif
+  "rules": {
+    "react/rules-of-hooks": "error",
+// #if next
+    "react/only-export-components": [
+      "warn",
+      {
+        "allowConstantExport": true,
+        "allowExportNames": [
+          "metadata",
+          "generateMetadata",
+          "generateStaticParams",
+          "viewport",
+          "generateViewport",
+          "dynamic",
+          "dynamicParams",
+          "revalidate",
+          "fetchCache",
+          "runtime",
+          "preferredRegion",
+          "maxDuration"
+        ]
+      }
+    ],
+// #else
+    "react/only-export-components": ["warn", { "allowConstantExport": true }],
+// #endif
+    "react/function-component-definition": [
+      "error",
+      {
+        "namedComponents": "function-declaration",
+        "unnamedComponents": "arrow-function"
+      }
+    ],
+    "eslint/no-warning-comments": [
+      "error",
+      { "terms": ["todo", "fixme", "hack", "xxx"], "location": "start" }
+    ],
+    "typescript/ban-ts-comment": [
+      "error",
+      { "ts-expect-error": true, "ts-ignore": true, "ts-nocheck": true }
+    ]
+  },
+  "overrides": [
+    {
+      "files": ["src/components/ui/**"],
+      "rules": {
+        "react/only-export-components": "off",
+        "react/function-component-definition": "off"
+      }
+    }
+  ]
+}
