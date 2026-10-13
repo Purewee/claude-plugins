@@ -4,7 +4,7 @@
 
 ## Stack
 
-| Piece | Version |
+| Component | Version |
 |---|---|
 <!-- #if vite -->
 | React + Vite | {{V:react}} / {{V:vite}} |

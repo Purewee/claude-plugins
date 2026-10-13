@@ -1,6 +1,6 @@
 {
   "name": "frontend",
-  "description": "Usage: open Claude Code in the folder where the new project should go and run /frontend:new-project. It asks one question form (framework, name, i18n, extras), or takes the answers as arguments (/frontend:new-project next my-shop mn,en forms,toasts), then renders a checked React + Vite or Next.js template with pnpm, strict TypeScript, Tailwind v4 + shadcn, Biome + oxlint, TanStack Query and Vitest (80% coverage gate). Needs Node 24+ and pnpm.",
+  "description": "Scaffolds a production-ready React + Vite or Next.js application: strict TypeScript, Tailwind CSS v4 and shadcn/ui, Biome and oxlint, a typed API client with TanStack Query, optional i18n, and Vitest with an 80% per-file coverage gate. Run /frontend:new-project in the folder where the project should be created.",
   "author": {
     "name": "Purewee"
   }

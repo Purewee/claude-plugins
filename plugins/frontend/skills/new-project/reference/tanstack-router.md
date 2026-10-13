@@ -1,12 +1,12 @@
 # TanStack Router instead of the built-in router
 
-Use this only when the user asked for TanStack Router (Vite only). Generate the project as usual, then replace the built-in router:
+Apply this only when the user asks for TanStack Router (Vite only). Generate the project as usual, then replace the built-in router:
 
 - Delete `src/App.tsx`, `src/App.test.tsx`, `src/pages.ts`, `src/pages.test.tsx`, `src/lib/router/` and `src/components/shared/app-link.tsx` with its test.
 - `pnpm add @tanstack/react-router@latest` and `pnpm add -D @tanstack/router-plugin@latest @tanstack/router-cli@latest`. The router CLI is versioned separately from the router, so a different version number is not a mismatch.
 - `NotFoundPage` and `ServerErrorPage` take `useNavigate()` instead of `useRouter()`, and `clickLeftToBrowser` is dropped from the test helpers.
 - Update CLAUDE.md: the folder map (`src/routes/`, `src/router.ts`, the generated `src/routeTree.gen.ts`), "A page" and the registry test.
-- Run `pnpm lint:fix`, then `pnpm verify` once, because these files are not covered by the template checks.
+- Run `pnpm lint:fix`, then a single `pnpm verify`, because these files are not covered by the template's own checks.
 
 
 **Scripts.** Merge these. The route tree must exist before `tsc` or the tests run, because tests run without the plugin.
