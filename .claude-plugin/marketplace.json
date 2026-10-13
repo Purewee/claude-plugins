@@ -8,7 +8,7 @@
     {
       "name": "frontend",
       "source": "./plugins/frontend",
-      "description": "Scaffolds a production-ready React + Vite or Next.js application: strict TypeScript, Tailwind CSS v4 and shadcn/ui, Biome and oxlint, a typed API client with TanStack Query, optional i18n, and Vitest with an 80% per-file coverage gate. Run /frontend:new-project in the folder where the project should be created."
+      "description": "Scaffolds a production-ready React + Vite or Next.js application: strict TypeScript, Tailwind CSS v4 and shadcn/ui, Biome and oxlint, a typed API client with TanStack Query, optional i18n, and Vitest with an 80% per-file coverage gate. Run /frontend:create-project in the folder where the project should be created."
     }
   ]
 }

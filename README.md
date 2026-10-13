@@ -4,7 +4,7 @@ A [Claude Code](https://claude.com/claude-code) plugin marketplace for frontend 
 
 | Plugin | Command | Description |
 |---|---|---|
-| `frontend` | `/frontend:new-project` | Scaffolds a production-ready React + Vite or Next.js application in about two minutes. |
+| `frontend` | `/frontend:create-project` | Scaffolds a production-ready React + Vite or Next.js application in about two minutes. |
 
 ## Installation
 
@@ -19,7 +19,7 @@ Then run `/reload-plugins`, or start a new Claude Code session.
 
 ## frontend
 
-`/frontend:new-project` creates a new React + Vite or Next.js application with a consistent, opinionated
+`/frontend:create-project` creates a React + Vite or Next.js application with a consistent, opinionated
 setup. Every combination of framework, language setup and extras is generated from a template that is
 verified with lint, type-check, tests and a production build, and every package is installed at its latest
 version when the project is created.
@@ -53,17 +53,17 @@ version when the project is created.
 Open Claude Code in the folder where the new project should be created and run:
 
 ```text
-/frontend:new-project
+/frontend:create-project
 ```
 
-Claude asks four questions (framework, project name, languages and extras) in a single form, then
-generates, installs and formats the project. No further questions are asked.
+Claude asks four questions (framework, project name, languages and extras) in a single form. As soon as the
+form is submitted, the project is generated, installed and formatted, with no confirmation step.
 
 To skip the form, pass the answers as arguments:
 
 ```text
-/frontend:new-project next my-shop mn,en forms,toasts
-/frontend:new-project vite ../apps/admin-panel mn
+/frontend:create-project next my-shop mn,en forms,toasts
+/frontend:create-project vite ../apps/admin-panel mn
 ```
 
 | Argument | Values |
@@ -72,10 +72,6 @@ To skip the form, pass the answers as arguments:
 | Name | A project name, or a path whose last segment is the name |
 | Languages | One language code (`mn`, `en`) for a single-language app, or a comma-separated list (`mn,en`) for i18n; the first is the default |
 | Extras | Any of `forms`, `tables`, `toasts` and `theme`, comma-separated; omit for none |
-
-After the first project, running `/frontend:new-project` without arguments reuses the previous answers and
-creates the next project alongside the last one (`my-shop-2`, `my-shop-3`, …). The answers are stored in
-`~/.config/new-frontend-project/last-answers.json`.
 
 ### After generation
 

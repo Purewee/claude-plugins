@@ -1,5 +1,5 @@
 ---
-name: new-project
+name: create-project
 description: Creates a production-ready React + Vite or Next.js application in the current folder: strict TypeScript, Tailwind CSS v4 and shadcn/ui, Biome and oxlint, TanStack Query, optional i18n, a light/dark theme and Vitest with an 80% coverage gate. Asks one question form, or takes the answers as arguments such as `next my-shop mn,en forms,toasts`.
 argument-hint: "[vite|next] [name or path] [mn | en | mn,en …] [forms,tables,toasts,theme | none]"
 disable-model-invocation: true
@@ -24,8 +24,8 @@ React + Vite and Next.js receive the same setup; only the files each framework o
 
 ## 0. Rules
 
-1. **Ask only when nothing answers yet** (see 1.0). Arguments, or the answers from the previous build, skip the form; otherwise your first message is the form (1.1). Until it is answered, only read (for example, the current directory's name to suggest a project name); create, install and change nothing.
-2. **One form at most.** Every other value has a default (1.3); ask nothing else.
+1. **Ask first, unless the arguments answer everything** (see 1.0). Otherwise your first message is the form (1.1). Until it is answered, only read (for example, the current directory's name to suggest a project name); create, install and change nothing.
+2. **One form at most, then build.** Every other value has a default (1.3). Once the form is submitted, start immediately: never ask for confirmation or any further question.
 3. **Use the generator, not hand-written files.** Edit generated files only to apply an adaptation from `reference/` that the user requested, or to fix a failure. Do not read library documentation or `node_modules` unless a step fails.
 4. **Use pnpm only.** Never npm, yarn or npx.
 5. **Never weaken a quality gate.** Do not lower the coverage threshold, add coverage-ignore comments, disable a lint rule for application code or relax a TypeScript option.
@@ -36,7 +36,7 @@ React + Vite and Next.js receive the same setup; only the files each framework o
 
 ## 1. Collecting the answers
 
-### 1.0 Arguments and previous answers
+### 1.0 Arguments
 
 Arguments after the command answer the form in advance, in the order `<framework> <name> <languages> [extras]`, for example `next my-shop mn,en forms,toasts` or `vite ../apps/admin-panel mn`:
 
@@ -47,16 +47,16 @@ Arguments after the command answer the form in advance, in the order `<framework
 
 When the framework, name and languages are all present and valid, skip the form: print the start message (1.2) and the decision record, then build. Otherwise, ask only the questions the arguments leave open.
 
-**Without arguments,** first run `node <skill dir>/scaffold.mjs last`. If it prints a set of answers, reuse them without asking: the same framework, languages and extras, with `nextName` in `nextDir` (the previous name with the next free `-2`, `-3` suffix). State in the decision record that the previous answers were reused and that arguments select a different setup. Ask the form only when it prints `none`, which happens on the first build on a machine.
+**Without arguments,** ask the form (1.1). Answers are never carried over from a previous project.
 
 ### 1.1 The form
 
-Introduce the task in one sentence, then ask **a single AskUserQuestion call** containing the four questions below (only those still open), so the user submits once. Give two to four options per question, each with a one-line description; where an option is recommended, list it first and end its label with "(Recommended)". If the tool is unavailable, send the same questions as one numbered list and wait for a single reply.
+Introduce the task in one sentence ("I'll create a …"), then ask **a single AskUserQuestion call** containing the four questions below (only those still open), so the user submits once. Give two to four options per question, each with a one-line description; where an option is recommended, list it first and end its label with "(Recommended)". If the tool is unavailable, send the same questions as one numbered list and wait for a single reply.
 
 1. **Framework.** Recommend neither option, and state that both receive the same setup.
    - React + Vite SPA: rendered in the browser and served as static files.
    - Next.js (App Router): server rendering and per-page metadata.
-2. **Project name.** Offer two kebab-case suggestions (for example `new-web-app` and `my-app`); the user can enter their own as `name` or `name path` through "Other". The folder is created next to the current directory, never inside another repository.
+2. **Project name.** Header "Project name", asking for the name of the project to create: "Name the project to create. Pick a suggestion, or enter your own under Other before submitting." Offer two kebab-case suggestions (for example `my-web-app` and `web-app`); the user can enter their own as `name` or `name path`. The folder is created next to the current directory, never inside another repository.
 3. **Internationalization:** "Do you want i18n (translations and a language switcher)?" Recommend no option.
    - No i18n, Mongolian only
    - No i18n, English only
@@ -70,7 +70,7 @@ Introduce the task in one sentence, then ask **a single AskUserQuestion call** c
 
 ### 1.2 Start message
 
-Once the answers are known, and before any tool call, print:
+As soon as the form is submitted (or the arguments are read), and before any tool call, print:
 
 ```markdown
 ## Building {{SITE_NAME}}
@@ -88,7 +88,7 @@ Then print the decision record (1.3) as one short table and start the build in t
 | Theme | Light and dark with a toggle when that extra was selected; otherwise light only. |
 | API | A REST API with an envelope response (`{ success, data, meta }`). Use `reference/api-variants.md` only if the user specified otherwise. |
 | Router | The built-in router for Vite. Use `reference/tanstack-router.md` only if the user asked for TanStack Router. |
-| Project name and folder | The name in kebab-case (`test new prompt` becomes `test-new-prompt`) and its absolute folder. |
+| Project name and folder | The name in kebab-case (`my shop app` becomes `my-shop-app`) and its absolute folder. |
 | Site name | The name in title case, set by the generator. |
 | Brand and font | The Material 3 placeholder palette and Inter, to be replaced with the real brand later. |
 | API URLs | The placeholders `<API_URL_DEV>` and `<API_URL_PROD>` in the tracked environment files. |
