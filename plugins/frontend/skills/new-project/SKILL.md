@@ -24,7 +24,7 @@ React + Vite and Next.js get the identical house setup; only the files the frame
 
 ## 0. Rules
 
-1. **Ask first, unless the arguments already answer** (1.0). Otherwise your first message is the question form (1.1). Until it is answered you may only read, for example the current directory's name to suggest a project name. Create, install and change nothing.
+1. **Ask first only when nothing answers yet** (1.0): arguments or the last build's answers skip the form. Otherwise your first message is the question form (1.1). Until it is answered you may only read, for example the current directory's name to suggest a project name. Create, install and change nothing.
 2. **At most one form, then no more questions.** Every other value has a default (1.3).
 3. **Run the generator; do not rewrite its output.** Edit generated files only for an adaptation in `reference/` that the user asked for, or to fix a failure. Read no library docs or `node_modules` unless a step fails.
 4. **pnpm is the only package manager.** Never npm, yarn or npx.
@@ -46,6 +46,8 @@ Arguments after the skill's command answer the form up front, in the order `<fra
 - **extras:** a comma list of `forms`, `tables`, `toasts` and `theme`, or `none`; left out, it means none.
 
 When the framework, the name and the languages are all given and valid, skip the form: print the 1.2 message and the decision record, and build. Otherwise ask the form with only the questions the arguments left open.
+
+**No arguments:** first run `node <skill dir>/scaffold.mjs last`. If it prints answers, reuse them without asking: the same framework, languages and extras, and `nextName` in `nextDir` (the last name with the next free `-2`, `-3` suffix). Say in the decision record that the last answers were reused, and that arguments choose others. Only when it prints `none` (the first build on this machine) ask the form.
 
 ### 1.1 The form
 

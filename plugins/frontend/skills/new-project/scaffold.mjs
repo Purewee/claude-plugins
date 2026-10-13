@@ -4,9 +4,11 @@
 //          (--i18n mn,en | --lang mn) [--extras forms,tables,toasts,theme]
 //          [--locale <code>=<file.json> ...] [--node-lts 24] [--skip-install] [--verify] [--from <step>]
 //        node scaffold.mjs locale-template --framework vite|next [--extras ...]   prints the English messages to translate
+//        node scaffold.mjs last   prints the last build's answers and the next free folder, or `none`
 import { execFileSync, spawnSync } from 'node:child_process'
 import fs from 'node:fs'
 import path from 'node:path'
+import os from 'node:os'
 import { fileURLToPath } from 'node:url'
 
 const HERE = path.dirname(fileURLToPath(import.meta.url))
@@ -14,6 +16,11 @@ const TEMPLATE = path.join(HERE, 'template')
 const EXTRAS = ['forms', 'tables', 'toasts', 'theme']
 const BUILT_IN_LANGS = ['mn', 'en']
 const STEPS = ['files', 'install', 'shadcn', 'finish', 'verify']
+const LAST_ANSWERS = path.join(
+  process.env.XDG_CONFIG_HOME ?? path.join(os.homedir(), '.config'),
+  'new-frontend-project',
+  'last-answers.json',
+)
 
 function fail(message) {
   console.error(`\n✖ ${message}`)
@@ -73,6 +80,7 @@ function parseArgs(argv) {
         fail(`Unknown option ${flag}`)
     }
   }
+  if (args.command === 'last') return args
   if (!['vite', 'next'].includes(args.framework)) fail('--framework must be vite or next')
   for (const extra of args.extras) {
     if (!EXTRAS.includes(extra)) fail(`Unknown extra "${extra}" (choose from ${EXTRAS.join(', ')})`)
@@ -435,6 +443,19 @@ function main() {
   const args = parseArgs(process.argv.slice(2))
   const flagsBase = Object.fromEntries(EXTRAS.map((extra) => [extra, args.extras.includes(extra)]))
 
+  // Prints the answers of the last finished build, with the next free folder name next to the last one.
+  if (args.command === 'last') {
+    if (!fs.existsSync(LAST_ANSWERS)) {
+      console.log('none')
+      return
+    }
+    const last = readJson(LAST_ANSWERS)
+    let name = last.name
+    for (let n = 2; fs.existsSync(path.join(last.parent, name)); n += 1) name = `${last.name}-${n}`
+    console.log(JSON.stringify({ ...last, nextName: name, nextDir: path.join(last.parent, name) }, null, 2))
+    return
+  }
+
   if (args.command === 'locale-template') {
     const flags = { ...flagsBase, next: args.framework === 'next' }
     const messages = withLanguageNames(messagesFor('en', flags, {}), args.langs ?? ['en'])
@@ -569,6 +590,18 @@ function main() {
   const report = ['typescript', 'react', flags.next ? 'next' : 'vite', 'vitest', '@biomejs/biome', 'tailwindcss']
     .map((name) => `${name} ${installedVersion(target, name)}`)
     .join(', ')
+  if (startAt <= STEPS.indexOf('finish')) {
+    fs.mkdirSync(path.dirname(LAST_ANSWERS), { recursive: true })
+    const answers = {
+      framework: args.framework,
+      name: appName,
+      parent: path.dirname(target),
+      languages: langs.join(','),
+      i18n,
+      extras: args.extras,
+    }
+    fs.writeFileSync(LAST_ANSWERS, `${JSON.stringify(answers, null, 2)}\n`)
+  }
   console.log(`\n✔ ${siteName} is ready at ${target}\n  ${report}\n  pnpm ${pnpmVersion}, Node LTS ${nodeLts}`)
 }
 

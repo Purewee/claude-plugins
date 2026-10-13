@@ -61,3 +61,7 @@ Or answer the form up front, in the order framework, name (or path), languages, 
 
 One language (`mn`) means no i18n; a comma list (`mn,en`) means i18n with the first as the default. Extras are
 `forms`, `tables`, `toasts` and `theme` (light + dark); leave them out for none.
+
+After the first build, `/frontend:new-project` without arguments asks nothing: it reuses the last answers
+(saved in `~/.config/new-frontend-project/last-answers.json`) and builds next to the last project as `<name>-2`,
+`<name>-3` and so on. Pass arguments to choose a different setup.
