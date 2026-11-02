@@ -354,22 +354,23 @@ function shadcnComponents(flags) {
   return [...names]
 }
 
-function nodeLtsMajor() {
+function fetchJson(url) {
   try {
-    const schedule = JSON.parse(
-      execFileSync('curl', ['-fsSL', 'https://raw.githubusercontent.com/nodejs/Release/main/schedule.json'], {
-        encoding: 'utf8',
-        timeout: 15000,
-      }),
-    )
+    return JSON.parse(execFileSync('curl', ['-fsSL', url], { encoding: 'utf8', timeout: 15000 }))
+  } catch {
+    return undefined
+  }
+}
+
+function nodeLtsMajor() {
+  const schedule = fetchJson('https://raw.githubusercontent.com/nodejs/Release/main/schedule.json')
+  if (schedule && typeof schedule === 'object') {
     const now = new Date()
     const active = Object.entries(schedule)
-      .filter(([, v]) => v.lts && new Date(v.lts) <= now && new Date(v.maintenance) > now)
+      .filter(([, v]) => v?.lts && new Date(v.lts) <= now && new Date(v.maintenance) > now)
       .map(([k]) => Number(k.slice(1)))
       .sort((a, b) => b - a)
     if (active.length) return String(active[0])
-  } catch {
-    // Offline: fall back to the running Node's even major below.
   }
   const major = Number(process.versions.node.split('.')[0])
   return String(major % 2 === 0 ? major : major - 1)
@@ -383,22 +384,38 @@ function installedVersion(target, name) {
   }
 }
 
-function registryPnpm() {
-  try {
-    return JSON.parse(
-      execFileSync('curl', ['-fsSL', 'https://registry.npmjs.org/pnpm/latest'], { encoding: 'utf8', timeout: 15000 }),
-    ).version
-  } catch {
-    return undefined
-  }
+function meetsMinimum(range, version) {
+  const minimum = /^>=\s*(\d+)(?:\.(\d+))?/.exec(range ?? '')
+  if (!minimum) return true
+  const [major, minor] = version.split('.').map(Number)
+  const [wantMajor, wantMinor] = [Number(minimum[1]), Number(minimum[2] ?? 0)]
+  return major > wantMajor || (major === wantMajor && minor >= wantMinor)
 }
 
 function latestPnpm() {
-  const version = registryPnpm()
-  if (typeof version === 'string' && /^\d+\.\d+\.\d+/.test(version)) return version
-  const local = execFileSync('pnpm', ['--version'], { encoding: 'utf8' }).trim()
-  console.warn(`! Could not read the latest pnpm from the npm registry; using the local pnpm ${local}`)
-  return local
+  const latest = fetchJson('https://registry.npmjs.org/pnpm/latest')
+  const useLocal = (reason) => {
+    const local = execFileSync('pnpm', ['--version'], { encoding: 'utf8' }).trim()
+    console.warn(`! ${reason}; using the local pnpm ${local}`)
+    return local
+  }
+  if (typeof latest?.version !== 'string' || !/^\d+\.\d+\.\d+/.test(latest.version)) {
+    return useLocal('Could not read the latest pnpm from the npm registry')
+  }
+  if (!meetsMinimum(latest.engines?.node, process.versions.node)) {
+    return useLocal(`pnpm ${latest.version} needs Node.js ${latest.engines.node}`)
+  }
+  return latest.version
+}
+
+function resumedVersions(target) {
+  const file = path.join(target, 'package.json')
+  if (!fs.existsSync(file)) fail(`${file} is missing; restore it or start again in an empty folder`)
+  const { packageManager, engines } = readJson(file)
+  const pnpm = /^pnpm@(\d+\.\d+\.\d+[^+]*)/.exec(packageManager ?? '')?.[1]
+  const node = /^>=(\d+)/.exec(engines?.node ?? '')?.[1]
+  if (!pnpm || !node) fail(`${file} needs a pnpm packageManager and engines.node to resume; restore them or start again`)
+  return { pnpm, node }
 }
 
 function writePackageJson(target, flags, tokens, pnpmVersion) {
@@ -494,11 +511,9 @@ function main() {
     }
   }
 
-  const nodeLts = args.nodeLts ?? nodeLtsMajor()
-  const pnpmVersion =
-    startAt > STEPS.indexOf('files')
-      ? readJson(path.join(target, 'package.json')).packageManager.replace(/^pnpm@/, '')
-      : latestPnpm()
+  const resumed = startAt > STEPS.indexOf('files') ? resumedVersions(target) : undefined
+  const nodeLts = args.nodeLts ?? resumed?.node ?? nodeLtsMajor()
+  const pnpmVersion = resumed?.pnpm ?? latestPnpm()
   const allMessages = Object.fromEntries(
     langs.map((lang) => {
       const messages = i18n ? withLanguageNames(messagesFor(lang, flags, args.locales), langs) : messagesFor(lang, flags, args.locales)
