@@ -377,7 +377,7 @@ function nodeLtsMajor() {
 
 function installedVersion(target, name) {
   try {
-    return readJson(path.join(target, 'node_modules', name, 'package.json')).version
+    return readJson(path.join(target, 'node_modules', name, 'package.json')).version ?? '—'
   } catch {
     return '—'
   }
@@ -421,7 +421,8 @@ function writePackageJson(target, flags, tokens, pnpmVersion) {
   fs.writeFileSync(file, `${JSON.stringify(pkg, null, 2)}\n`)
 }
 
-function displayVersion(version = '—') {
+function displayVersion(version) {
+  if (version.includes('-')) return version
   const [major, minor] = version.split('.')
   if (major !== '0') return major
   return minor === '0' ? version : `${major}.${minor}`

@@ -104,7 +104,7 @@ The messages live in `src/i18n/locales/<lang>.json` ({{LANGS_TEXT}}). Keys are t
 
 ## Dependency updates
 
-Dependabot (`.github/dependabot.yml`) checks the npm packages every week and opens two grouped pull requests: one with every minor and patch update, and one with every major update, so packages that depend on each other mostly move together. Security updates, when enabled for the repository, still arrive as separate pull requests and skip the waiting period below. Major updates of `@types/node` are skipped; move it by hand together with `engines.node` when the Node.js LTS baseline moves. A release must be at least 7 days old before it is proposed. Run `pnpm verify` on the branch before merging, and update the Stack table above when a version in it changes.
+Dependabot (`.github/dependabot.yml`) checks the npm packages every week and opens two grouped pull requests: one with every minor and patch update, and one with every major update, so packages that depend on each other mostly move together. Security updates, when enabled for the repository, still arrive as separate pull requests and skip Dependabot's waiting period below; pnpm's own minimum release age still applies when the branch is installed. Major updates of `@types/node` are skipped; move it by hand together with `engines.node` when the Node.js LTS baseline moves. A release must be at least 7 days old before it is proposed. Run `pnpm verify` on the branch before merging, and update the Stack table above when a version in it changes.
 
 ## Conventions
 
