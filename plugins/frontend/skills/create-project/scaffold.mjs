@@ -6,6 +6,7 @@
 //        node scaffold.mjs locale-template --framework vite|next [--extras ...]   prints the English messages to translate
 import { execFileSync, spawnSync } from 'node:child_process'
 import fs from 'node:fs'
+import os from 'node:os'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -385,24 +386,30 @@ function installedVersion(target, name) {
 }
 
 function meetsMinimum(range, version) {
-  const minimum = /^>=\s*(\d+)(?:\.(\d+))?/.exec(range ?? '')
+  const minimum = /^>=\s*(\d+)(?:\.(\d+))?(?:\.(\d+))?/.exec(range ?? '')
   if (!minimum) return true
-  const [major, minor] = version.split('.').map(Number)
-  const [wantMajor, wantMinor] = [Number(minimum[1]), Number(minimum[2] ?? 0)]
-  return major > wantMajor || (major === wantMajor && minor >= wantMinor)
+  const have = version.split('.').map(Number)
+  const want = minimum.slice(1).map((part) => Number(part ?? 0))
+  const diff = [0, 1, 2].map((i) => (have[i] ?? 0) - want[i]).find((d) => d !== 0)
+  return diff === undefined || diff > 0
 }
 
-function latestPnpm() {
+function latestPnpm(nodeLts) {
   const latest = fetchJson('https://registry.npmjs.org/pnpm/latest')
   const useLocal = (reason) => {
-    const local = execFileSync('pnpm', ['--version'], { encoding: 'utf8' }).trim()
+    let local
+    try {
+      local = execFileSync('pnpm', ['--version'], { encoding: 'utf8', cwd: os.tmpdir() }).trim()
+    } catch {
+      fail('pnpm is not installed or not on PATH')
+    }
     console.warn(`! ${reason}; using the local pnpm ${local}`)
     return local
   }
   if (typeof latest?.version !== 'string' || !/^\d+\.\d+\.\d+/.test(latest.version)) {
     return useLocal('Could not read the latest pnpm from the npm registry')
   }
-  if (!meetsMinimum(latest.engines?.node, process.versions.node)) {
+  if (!meetsMinimum(latest.engines?.node, process.versions.node) || !meetsMinimum(latest.engines?.node, `${nodeLts}.0.0`)) {
     return useLocal(`pnpm ${latest.version} needs Node.js ${latest.engines.node}`)
   }
   return latest.version
@@ -512,8 +519,8 @@ function main() {
   }
 
   const resumed = startAt > STEPS.indexOf('files') ? resumedVersions(target) : undefined
-  const nodeLts = args.nodeLts ?? resumed?.node ?? nodeLtsMajor()
-  const pnpmVersion = resumed?.pnpm ?? latestPnpm()
+  const nodeLts = resumed?.node ?? args.nodeLts ?? nodeLtsMajor()
+  const pnpmVersion = resumed?.pnpm ?? latestPnpm(nodeLts)
   const allMessages = Object.fromEntries(
     langs.map((lang) => {
       const messages = i18n ? withLanguageNames(messagesFor(lang, flags, args.locales), langs) : messagesFor(lang, flags, args.locales)
