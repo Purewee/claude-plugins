@@ -94,7 +94,7 @@ Then print the decision record (1.3) as one short table and start the build in t
 | Brand and font | The Material 3 placeholder palette and Inter, to be replaced with the real brand later. |
 | API URLs | The placeholders `<API_URL_DEV>` and `<API_URL_PROD>` in the tracked environment files. |
 | Coverage | 80% per file for lines, statements, functions and branches. |
-| Node.js and pnpm | The active Node.js LTS (detected by the generator) and the locally installed pnpm. |
+| Node.js and pnpm | The active Node.js LTS and the latest pnpm, both detected by the generator. pnpm switches to that version through `packageManager`, so the install runs on it. |
 
 ## 2. Build
 

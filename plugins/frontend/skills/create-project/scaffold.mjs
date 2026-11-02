@@ -383,6 +383,15 @@ function installedVersion(target, name) {
   }
 }
 
+function latestPnpm() {
+  try {
+    return execFileSync('pnpm', ['view', 'pnpm', 'version'], { encoding: 'utf8', timeout: 15000 }).trim()
+  } catch {
+    // Offline: fall back to the running pnpm below.
+  }
+  return execFileSync('pnpm', ['--version'], { encoding: 'utf8' }).trim()
+}
+
 function writePackageJson(target, flags, tokens, pnpmVersion) {
   const scripts = flags.next
     ? {
@@ -477,7 +486,7 @@ function main() {
   }
 
   const nodeLts = args.nodeLts ?? nodeLtsMajor()
-  const pnpmVersion = execFileSync('pnpm', ['--version'], { encoding: 'utf8' }).trim()
+  const pnpmVersion = latestPnpm()
   const allMessages = Object.fromEntries(
     langs.map((lang) => {
       const messages = i18n ? withLanguageNames(messagesFor(lang, flags, args.locales), langs) : messagesFor(lang, flags, args.locales)
