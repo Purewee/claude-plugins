@@ -421,11 +421,17 @@ function writePackageJson(target, flags, tokens, pnpmVersion) {
   fs.writeFileSync(file, `${JSON.stringify(pkg, null, 2)}\n`)
 }
 
+function displayVersion(version = '—') {
+  const [major, minor] = version.split('.')
+  if (major !== '0') return major
+  return minor === '0' ? version : `${major}.${minor}`
+}
+
 function fillVersions(target, flags) {
   const readme = path.join(target, 'README.md')
   if (!fs.existsSync(readme)) return
   const text = fs.readFileSync(readme, 'utf8').replace(/\{\{V:([@\w./-]+)\}\}/g, (_, name) =>
-    installedVersion(target, name),
+    displayVersion(installedVersion(target, name)),
   )
   fs.writeFileSync(readme, text)
   void flags
@@ -545,10 +551,6 @@ function main() {
   }
 
   if (startAt <= STEPS.indexOf('finish')) {
-    const biome = path.join(target, 'biome.json')
-    const config = readJson(biome)
-    config.$schema = `https://biomejs.dev/schemas/${installedVersion(target, '@biomejs/biome')}/schema.json`
-    fs.writeFileSync(biome, `${JSON.stringify(config, null, 2)}\n`)
     fillVersions(target, flags)
     // A newer Biome may rename or promote a rule in biome.json; only then is `biome migrate` worth its time.
     if (

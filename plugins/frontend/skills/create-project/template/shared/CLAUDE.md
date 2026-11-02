@@ -557,6 +557,8 @@ Biome and oxlint enforce the rules they can: kebab-case file names, default expo
 **Dependencies and process**
 
 #. pnpm only. Add packages with `@latest`, using `-D` for build and test tools. shadcn primitives come from `pnpm dlx shadcn@latest add <name>`, followed by `pnpm lint:fix`. Never hand-edit `components/ui/*`, and delete primitives nothing uses.
+#. Dependabot (`.github/dependabot.yml`) opens two weekly pull requests: one with every minor and patch update, one with every major update. Merge one only after `pnpm verify` passes on its branch, and update the README's Stack table when a version shown there changes. If `pnpm lint` fails after a Biome update, run `pnpm exec biome migrate --write`.
+#. An update that breaks app code gets that code fixed in the same branch. One that a tool does not support yet (a plugin lagging its host, a tool needing the TypeScript API) keeps the current major, with an `ignore` entry for it in `dependabot.yml`, shaped like the `@types/node` one and removed once the tool catches up. `@types/node` majors are skipped: when `engines.node` moves to a new LTS, move `@types/node` to that major in the same change. Never weaken a gate to merge an update.
 #. Update README.md and CLAUDE.md in the same change whenever commands, versions or conventions change.
 
 ## Testing

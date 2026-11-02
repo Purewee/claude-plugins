@@ -39,6 +39,8 @@ version when the project is created.
   (sonner), and a light/dark theme with a toggle.
 - **Tests:** Vitest and Testing Library, with tests for every generated file and an 80% per-file coverage
   gate on lines, statements, functions and branches.
+- **Dependency updates:** a Dependabot config that opens two weekly pull requests, one with minor and patch
+  updates and one with major updates, for releases at least 7 days old.
 - **Documentation:** a project README, and a `CLAUDE.md` that records the architecture and coding standards
   for future work with Claude Code.
 

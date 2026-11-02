@@ -15,12 +15,13 @@ Creates a new frontend application with the team's standard setup:
 - a zod-validated API client with TanStack Query
 - optional internationalization
 - a Vitest and Testing Library suite with an 80% per-file coverage gate
+- Dependabot for weekly dependency updates
 
 React + Vite and Next.js receive the same setup; only the files each framework owns differ.
 
-**How it works.** In this document, `<skill dir>` is the base directory this skill was loaded from (shown when it loads). Every project file lives in `<skill dir>/template/` and has been verified with `pnpm verify` for both frameworks, with and without i18n, and with every extra. `scaffold.mjs` renders the template for the chosen options, writes `package.json`, installs every package at its latest version, adds the selected shadcn/ui components, records the installed versions in the README and formats the result. Your role is to collect the answers, run one command and report the outcome; never write template files by hand.
+**How it works.** In this document, `<skill dir>` is the base directory this skill was loaded from (shown when it loads). Every project file lives in `<skill dir>/template/` and has been verified with `pnpm verify` for both frameworks, with and without i18n, and with every extra. `scaffold.mjs` renders the template for the chosen options, writes `package.json`, installs every package at its latest version, adds the selected shadcn/ui components, records the installed versions in the README (major only from 1.0) and formats the result. Your role is to collect the answers, run one command and report the outcome; never write template files by hand.
 
-**Out of scope:** git, git hooks, CI, Docker, nginx, Kubernetes, Vercel and any other deployment. Do not create, install or ask about them.
+**Out of scope:** git, git hooks, CI, Docker, nginx, Kubernetes, Vercel and any other deployment. Do not create, install or ask about them. The only file under `.github/` is the template's `dependabot.yml`.
 
 ## 0. Rules
 
@@ -125,11 +126,11 @@ The generator stops at the failing step and names it. Fix the cause, then rerun 
 
 - **`ERR_PNPM_IGNORED_BUILDS`:** decide each package pnpm lists under `allowBuilds` in `pnpm-workspace.yaml`, allowing a build script only when the package cannot work without it, then rerun with `--from install`.
 - **Release-age hold** (`minimumReleaseAge`): keep pnpm's supply-chain checks enabled, accept the newest allowed version and record it as a deviation. Add a `minimumReleaseAgeExclude` entry only if the user asks.
-- **A tool fails on the TypeScript API** (TypeScript 7 ships none): run `pnpm add -D typescript@^6`, record it and rerun with `--from finish`.
+- **A tool fails on the TypeScript API** (TypeScript 7 ships none): run `pnpm add -D typescript@^6`, add a Dependabot `ignore` entry for `typescript` majors to `.github/dependabot.yml` (copy the `@types/node` entry with its `update-types: [version-update:semver-major]`, so minor and patch updates still arrive), record both and rerun with `--from finish`.
 - **A new major version changed a configuration schema:** the generator already retries `pnpm lint:fix` after `pnpm exec biome migrate --write`. For other tools, use their migration path (`pnpm dlx @tailwindcss/upgrade@latest` or the official upgrade guide), preserve the intent of the setting and record it. A Biome `nursery` rule that was renamed or promoted is moved by `biome migrate`; if it was removed, delete it from `biome.json` and record it.
 - **`pnpm lint:fix` reports an error:** fix the file it names and run `pnpm lint:fix` once more.
 - **`experimental.globalNotFound` was renamed or became stable** (Next.js with i18n): follow the message printed by `next build` (move the option, or remove it once stable), keep `app/global-not-found.tsx` and record the change.
-- Never pass `--force`, and do not add `overrides` to silence peer-dependency ranges. If the newest plugin does not yet support the newest major version of its host, use the newest compatible pair and record it.
+- Never pass `--force`, and do not add `overrides` to silence peer-dependency ranges. If the newest plugin does not yet support the newest major version of its host, use the newest compatible pair, add a Dependabot `ignore` entry for the held-back host's majors (shaped like the `@types/node` entry) and record both.
 
 ### 2.4 Adaptations outside the form
 
@@ -160,7 +161,7 @@ This section is only relevant when changing the skill itself.
 - **Layout.** `template/shared/` contains files used by both frameworks; `template/vite/` and `template/next/` contain framework-specific files, which replace a shared file at the same path. `template/locales/` contains the messages: `base/` plus one folder for each extra that adds keys. `reference/` contains the adaptations outside the form.
 - **Directives** occupy whole lines, in any comment syntax (`// #if`, `{/* #if */}`, `<!-- #if -->`, `# #if`), and are always removed from the output: `#if expr`, `#elif expr`, `#else`, `#endif`, and `#file expr` to skip an entire file. Available flags are `vite`, `next`, `i18n`, `plain`, `forms`, `tables`, `toasts`, `theme`, `en` and `cyrillic`, combined with `&&`, `||`, `!` and parentheses.
 - **Tokens.** `{{SITE_NAME}}`, `{{APP_NAME}}`, `{{DEFAULT_LANG}}`, `{{OTHER_LANG}}`, `{{REF_LANG}}`, `{{LANGS_LIST}}`, `{{API_ENV}}`, `{{CSS_ENTRY}}` and `{{ERROR_DIR}}`, plus the generated blocks `{{LOCALE_IMPORTS}}`, `{{LOCALE_RESOURCES}}`, `{{LOCALE_MESSAGES}}` and `{{LOCALE_TEST_ROWS}}`. A token alone on its line expands a multi-line value at that indentation, and tokens also work in file paths.
-- **Strings.** `{{T:key}}` (a JSX child), `{{TS:key}}` (an expression) and `{{TA:key}}` (an attribute value) become `t('key')` with i18n, or the default-language text without it. `{{t:key}}`, `{{tq:key}}` and `{{ta:key}}` always produce the default-language text, which lets one test file serve every language. `{{?flag:text}}` keeps `text` only when the flag is set (`{{?!flag:…}}` when it is not); the text may contain `{{UPPERCASE}}` tokens but no other `}`. Uppercase tokens are resolved first, then flags, then strings. In `.md` files, lines starting with `#. ` are numbered in order, and README versions are written as `{{V:package}}` and filled in after installation.
+- **Strings.** `{{T:key}}` (a JSX child), `{{TS:key}}` (an expression) and `{{TA:key}}` (an attribute value) become `t('key')` with i18n, or the default-language text without it. `{{t:key}}`, `{{tq:key}}` and `{{ta:key}}` always produce the default-language text, which lets one test file serve every language. `{{?flag:text}}` keeps `text` only when the flag is set (`{{?!flag:…}}` when it is not); the text may contain `{{UPPERCASE}}` tokens but no other `}`. Uppercase tokens are resolved first, then flags, then strings. In `.md` files, lines starting with `#. ` are numbered in order, and README versions are written as `{{V:package}}` and filled in after installation with the major version (`major.minor` below 1.0, the full version below 0.1).
 - **Verifying a change.** Generate and verify the combinations a change affects, at minimum Vite and Next.js each with i18n and all extras, and each without i18n or extras, using `--verify` (which runs `pnpm verify` at the end):
 
 ```sh
