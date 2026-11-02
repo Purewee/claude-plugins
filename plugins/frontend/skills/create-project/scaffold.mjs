@@ -383,13 +383,22 @@ function installedVersion(target, name) {
   }
 }
 
-function latestPnpm() {
+function registryPnpm() {
   try {
-    return execFileSync('pnpm', ['view', 'pnpm', 'version'], { encoding: 'utf8', timeout: 15000 }).trim()
+    return JSON.parse(
+      execFileSync('curl', ['-fsSL', 'https://registry.npmjs.org/pnpm/latest'], { encoding: 'utf8', timeout: 15000 }),
+    ).version
   } catch {
-    // Offline: fall back to the running pnpm below.
+    return undefined
   }
-  return execFileSync('pnpm', ['--version'], { encoding: 'utf8' }).trim()
+}
+
+function latestPnpm() {
+  const version = registryPnpm()
+  if (typeof version === 'string' && /^\d+\.\d+\.\d+/.test(version)) return version
+  const local = execFileSync('pnpm', ['--version'], { encoding: 'utf8' }).trim()
+  console.warn(`! Could not read the latest pnpm from the npm registry; using the local pnpm ${local}`)
+  return local
 }
 
 function writePackageJson(target, flags, tokens, pnpmVersion) {
@@ -486,7 +495,10 @@ function main() {
   }
 
   const nodeLts = args.nodeLts ?? nodeLtsMajor()
-  const pnpmVersion = latestPnpm()
+  const pnpmVersion =
+    startAt > STEPS.indexOf('files')
+      ? readJson(path.join(target, 'package.json')).packageManager.replace(/^pnpm@/, '')
+      : latestPnpm()
   const allMessages = Object.fromEntries(
     langs.map((lang) => {
       const messages = i18n ? withLanguageNames(messagesFor(lang, flags, args.locales), langs) : messagesFor(lang, flags, args.locales)
